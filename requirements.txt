@@ -3,7 +3,7 @@ uvicorn==0.15.0
 SQLAlchemy==1.4.26
 python-dotenv==0.19.1
 # postgresql [first needs to be installed or running in a docker container]
-psycopg2==2.9.1
+# psycopg2==2.9.1
 alembic==1.7.4
 python-multipart==0.0.5
 # password hasher <pip install passlib[bcrypt]> or ...
