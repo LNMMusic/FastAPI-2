@@ -20,7 +20,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     # Field for access to all its other Tables
-    items = relationship("Item", back_populates="owner")
+    # items = relationship("Item", back_populates="owner")
 
 
     # METHODS [Security]

@@ -1,9 +1,9 @@
 # SECURITY
-from fastapi.security import OAuth2PasswordBearer;    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+from fastapi.security import OAuth2PasswordBearer;    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 from jose             import JWTError, jwt
 from datetime         import datetime, timedelta
 # ENV
-from config.env       import Env                      SECRET_KEY = Env("SECRET_KEY");ALGORITHM  = Env("ALGORITHM")
+from config.env       import Env;                     SECRET_KEY = Env("SECRET_KEY"); ALGORITHM = Env("ALGORITHM")
 # TYPES
 from fastapi          import Depends
 from typing           import List, Optional
@@ -18,13 +18,10 @@ credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
 
 
 
-# AUTH Token
-def token_authorization(db_user: model.User, expires_delta: Optional[timedelta] = None) -> schema.Token:
+# AUTH TOKEN
+def token_authorization(db_user: model.User, expire_minutes: int = 15) -> schema.Token:
     # Expiration
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+    expire = datetime.utcnow() + timedelta(minutes=expire_minutes)
     
     # Metadata
     user = schema.User.from_orm(db_user)
@@ -39,25 +36,24 @@ def token_authorization(db_user: model.User, expires_delta: Optional[timedelta] 
         token_type="Bearer"
     )
 
-
-def token_validation(db: Session = Depends(get_db), token:str = Depends(oauth2_scheme)) -> None:
+# AUTH VALIDATION [Middleware]
+def token_validation(token:str = Depends(oauth2_scheme), db = Depends(get_db)) -> None:
     ''' Raise an error if Token is Invalid '''
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         
-        db_user= db.query(models.User).get(payload["id"])
+        db_user= db.query(model.User).get(payload["id"])
         if db_user is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
 
-
-def token_metadata(db: Session = Depends(get_db), token:str = Depends(oauth2_scheme)) -> schema.User.from_orm:
+def token_metadata(token:str = Depends(oauth2_scheme), db = Depends(get_db)) -> schema.User.from_orm:
     ''' Raise an error if Token is Invalid and Returns Token Metadata '''
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         
-        db_user= db.query(models.User).get(payload["id"])
+        db_user= db.query(model.User).get(payload["id"])
         if db_user is None:
             raise credentials_exception
     except JWTError:
