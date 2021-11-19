@@ -36,7 +36,7 @@ def token_authorization(db_user: model.User, expire_minutes: int = 15) -> schema
         token_type="Bearer"
     )
 
-# AUTH VALIDATION [Middleware]
+# AUTH VALIDATION [Middleware] [Not Neccesary, its just a layer to the actual Middleware that is <oauth2_scheme> dependency]
 def token_validation(token:str = Depends(oauth2_scheme), db = Depends(get_db)) -> None:
     ''' Raise an error if Token is Invalid '''
     try:

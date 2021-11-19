@@ -44,6 +44,3 @@ async def login(user: schema.OAuth2PasswordRequestForm = Depends(), db: Session 
     # Authentication
     token = service.token_authorization(db_user)
     return token
-
-async def logout():
-    pass
