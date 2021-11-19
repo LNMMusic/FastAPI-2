@@ -1,9 +1,11 @@
 # LIBRARIES
 import uvicorn
 from fastapi import FastAPI
+# CORS
 from fastapi.middleware.cors import CORSMiddleware
+from config.cors import origins
 # ROUTER
-# /...
+from routes.auth import routerAuth
 
 
 
@@ -16,6 +18,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ROUTES
+app.include_router(routerAuth)
 
 # SERVER
 if __name__ == "__main__":
