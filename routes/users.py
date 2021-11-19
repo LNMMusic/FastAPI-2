@@ -15,6 +15,7 @@ routerUser = APIRouter(
     dependencies=[Depends(middleware.tokenJWT)]
 )
 
+# endpoints
 @routerUser.get("/me")
 async def userCurrent(r: Request):
     # Token Metadata
