@@ -18,7 +18,7 @@ credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
 
 
 
-# AUTH TOKEN
+# TOKEN [Authorization]
 def token_authorization(db_user: model.User, expire_minutes: int = 15) -> schema.Token:
     # Expiration
     expire = datetime.utcnow() + timedelta(minutes=expire_minutes)
@@ -36,27 +36,48 @@ def token_authorization(db_user: model.User, expire_minutes: int = 15) -> schema
         token_type="Bearer"
     )
 
-# AUTH VALIDATION [Middleware] [Not Neccesary, its just a layer to the actual Middleware that is <oauth2_scheme> dependency]
-def token_validation(token:str = Depends(oauth2_scheme), db = Depends(get_db)) -> None:
-    ''' Raise an error if Token is Invalid '''
+# TOKEN [Metadata]
+def token_metadata(token: str):
+    ''' In this Case the Metadata on the Payload its just the User Info passed through the Token Auth Creation '''
     try:
+        token = token.split()[1]
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        
-        db_user= db.query(model.User).get(payload["id"])
-        if db_user is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-
-def token_metadata(token:str = Depends(oauth2_scheme), db = Depends(get_db)) -> schema.User.from_orm:
-    ''' Raise an error if Token is Invalid and Returns Token Metadata '''
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        
-        db_user= db.query(model.User).get(payload["id"])
-        if db_user is None:
-            raise credentials_exception
+        return payload
     except JWTError:
         raise credentials_exception
     
-    return schema.User.from_orm(db_user)
+
+
+
+
+
+
+
+
+
+
+# TOKEN [Validation] [Middleware] [Not Neccesary, its just a layer to the actual Middleware that is <oauth2_scheme> dependency]
+# def token_validation(token:str = Depends(oauth2_scheme), db = Depends(get_db)) -> None:
+#     ''' Raise an error if Token is Invalid '''
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        
+#         db_user= db.query(model.User).get(payload["id"])
+#         if db_user is None:
+#             raise credentials_exception
+#     except JWTError:
+#         raise credentials_exception
+
+# def token_metadata(token:str = Depends(oauth2_scheme), db = Depends(get_db)) -> schema.User.from_orm:
+#     ''' Raise an error if Token is Invalid and Returns Token Metadata '''
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        
+#         db_user= db.query(model.User).get(payload["id"])
+#         if db_user is None:
+#             raise credentials_exception
+#     except JWTError:
+#         raise credentials_exception
+    
+#     return schema.User.from_orm(db_user)
+
